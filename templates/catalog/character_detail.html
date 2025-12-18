@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ character.full_name }}{% endblock %}
+{% block content %}
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="ratio ratio-3x4">
+                <img id="poster" class="rounded object-fit-cover"
+                     src="{{ character.poster_url }}"
+                     alt="{{ character.full_name }}"
+                     role="button" data-bs-toggle="modal" data-bs-target="#zoomModal">
+            </div>
+            <div class="d-grid gap-2 mt-3">
+                <a class="btn btn-primary" href="{% url 'character-gallery' character.slug %}">Галерея</a>
+                <a class="btn btn-outline-secondary" href="{{ character.work.get_absolute_url }}">← К
+                    материалу: {{ character.work.title }}</a>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h1 class="h3">{{ character.full_name }}</h1>
+
+            <div class="mb-2"><strong>Материалы:</strong>
+                <ul class="mb-2">
+                    <li><a href="{{ character.work.get_absolute_url }}">{{ character.work.title }}</a></li>
+                    {% for w in character.appearances.all %}
+                        {% if w != character.work %}
+                            <li><a href="{{ w.get_absolute_url }}">{{ w.title }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="mb-3">
+                {{ character.bio|default:"<p>Lorem ipsum dolor sit amet...</p><p>Lorem ipsum dolor sit amet...</p>"|safe }}
+            </div>
+
+            <h2 class="h6">Характеристики</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li>Рост: {{ character.height_cm|default:"—" }} см</li>
+                        <li>Вес: {{ character.weight_kg|default:"—" }} кг</li>
+                        <li>Возраст: {{ character.age|default:"—" }}</li>
+                        <li>Раса: {{ character.race|default:"—" }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    {% if character.sex == 'female' %}
+                        <ul class="list-unstyled">
+                            <li>Грудь: {{ character.bust_cm|default:"—" }} см</li>
+                            <li>Талия: {{ character.waist_cm|default:"—" }} см</li>
+                            <li>Бёдра: {{ character.hips_cm|default:"—" }} см</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="mb-2"><strong>Навыки:</strong>
+                {% for s in character.skills.all %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% empty %}
+                    —{% endfor %}
+            </div>
+            <div class="mb-2"><strong>Особенности:</strong>
+                {% for t in character.traits.all %}{{ t.name }}{% if not forloop.last %}, {% endif %}{% empty %}
+                    —{% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Zoom Modal -->
+    <div class="modal fade" id="zoomModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-dark">
+                <div class="modal-body p-0">
+                    <img class="w-100" src="{{ character.poster_url }}" alt="zoom">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

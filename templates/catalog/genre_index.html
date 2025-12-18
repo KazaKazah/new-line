@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% extends 'base.html' %}
+        {% load crispy_forms_tags %}
+        {% block title %}Жанры{% endblock %}
+
+        {% block content %}
+            <div class="row g-4">
+            <div class="col-lg-4">
+            <div class="card shadow-sm">
+            <div class="card-body">
+            <h2 class="h5 mb-3">Создать жанр</h2>
+            <form method="post">{% csrf_token %}
+            {{ form|crispy }}
+            <button class="btn btn-success">Добавить жанр</button>
+            </form>
+            </div>
+            </div>
+            </div>
+
+            <div class="col-lg-8">
+            <h1 class="h4 mb-3">Список жанров</h1>
+            <div class="row g-3">
+            {% for g in genres %}
+                <div class="col-6 col-md-4">
+                <a href="{% url 'genre-works' g.slug %}" class="text-decoration-none">
+                <div class="border rounded p-3 h-100 hover-bg">
+                <div class="fw-semibold">{{ g.name }}</div>
+                </div>
+                </a>
+                </div>
+            {% empty %}
+                <p class="text-muted">Жанры пока не созданы.</p>
+            {% endfor %}
+            </div>
+            </div>
+            </div>
+
+            <style>
+            .hover-bg{ transition: background-color .15s ease, box-shadow .15s ease; }
+            .hover-bg:hover{ background-color: rgba(0,0,0,.03); box-shadow: 0 .5rem 1rem rgba(0,0,0,.08); }
+            </style>
+        {% endblock %}</title>
+</head>
+<body>
+
+</body>
+</html>

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Загрузка архива — {{ character.full_name }}{% endblock %}
+{% block content %}
+    <h1 class="h5 mb-3">Загрузка архива — {{ character.full_name }}</h1>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ form.character }}
+        <div class="mb-3">
+            <label class="form-label">{{ form.fields.archive.label }}</label>
+            <input type="file" name="archive" class="form-control" accept=".zip,.rar" required>
+            <div class="form-text">Рекомендуется .zip. {% if not rar_supported %}Поддержка .rar не
+                установлена.{% endif %}</div>
+            {% if form.errors.archive %}
+                <div class="invalid-feedback d-block">{{ form.errors.archive|striptags }}</div>{% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.caption|as_crispy_field }}
+        </div>
+
+        <button class="btn btn-primary">Загрузить из архива</button>
+        <a class="btn btn-outline-secondary ms-2" href="{% url 'character-gallery' character.slug %}">Отмена</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static catalog_extras %}
+{% block title %}Материалы{% endblock %}
+
+
+{% block add_button %}
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'work-add' %}" class="btn btn-success">Добавить</a>
+    </div>
+{% endblock %}
+
+
+{% block content %}
+    <div class="mb-3">
+        <strong>Жанры: </strong>
+        {% for g in genres %}
+            <a class="badge bg-secondary text-decoration-none" href="{% url 'genre-works' g.slug %}">{{ g.name }}</a>
+        {% empty %}—{% endfor %}
+    </div>
+
+
+    <div class="row g-3">
+        {% for w in works %}
+            <div class="col-6 col-md-4">
+                <a class="card shadow-sm work-card text-decoration-none" href="{{ w.get_absolute_url }}">
+                    <div class="ratio ratio-3x4">
+                        <img class="card-img-top object-fit-cover" src="{{ w.poster_url }}" alt="{{ w.title }}">
+                    </div>
+                    <div class="card-body">
+                        <h2 class="h6 text-dark mb-1">{{ w.title }}</h2>
+                        <div class="small text-muted mb-1">{{ w.year }}</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for g in w.genres.all %}
+                                <a class="badge text-bg-secondary text-decoration-none"
+                                   href="{% url 'genre-works' g.slug %}">{{ g.name }}</a>
+                            {% empty %}
+                                <span class="text-muted small">без жанра</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p>Пока пусто.</p>
+        {% endfor %}
+    </div>
+
+
+    {% include 'includes/pagination.html' %}
+{% endblock %}

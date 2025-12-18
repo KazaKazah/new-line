@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Добавить фото — {{ view.character.full_name }}{% endblock %}
+{% block content %}
+    <h1 class="h5 mb-3">Добавить фото — {{ view.character.full_name }}</h1>
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        {{ form|crispy }}
+        <button class="btn btn-success">Загрузить</button>
+        <a class="btn btn-outline-secondary ms-2"
+           href="{% url 'character-gallery' view.character.slug %}">Отмена</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Персонажи{% endblock %}
+
+{% block add_button %}
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'character-add' %}?work={{ work.slug }}&sex={{ sex }}" class="btn btn-success">
+            Добавить персонажа
+        </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-3">{{ work.title }} — {% if sex == 'female' %}Женские{% else %}Мужские{% endif %} персонажи</h1>
+    <div class="row g-3">
+        {% for c in characters %}
+            <div class="col-6 col-md-4">
+                <a class="card shadow-sm work-card text-decoration-none" href="{{ c.get_absolute_url }}">
+                    <div class="ratio ratio-3x4">
+                        <img class="card-img-top object-fit-cover" src="{{ c.poster_url }}" alt="{{ c.full_name }}">
+                    </div>
+                    <div class="card-body">
+                        <h2 class="h6 text-dark mb-1">{{ c.full_name }}</h2>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <p>Пока нет персонажей.</p>
+        {% endfor %}
+    </div>
+    {% include 'includes/pagination.html' %}
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}Загрузка нескольких фото — {{ character.full_name }}{% endblock %}
+{% block content %}
+    <h1 class="h5 mb-3">Загрузка нескольких фото — {{ character.full_name }}</h1>
+
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        {# скрытое поле персонажа #}
+        {{ form.character }}
+
+        <div class="mb-3">
+            <label for="id_images" class="form-label">{{ form.fields.images.label }}*</label>
+            <!-- вручную: гарантируем name="images" и multiple -->
+            <input type="file"
+                   id="id_images"
+                   name="images"
+                   class="form-control"
+                   accept="image/*"
+                   multiple>
+            {% if form.errors.images %}
+                <div class="invalid-feedback d-block">{{ form.errors.images|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            {{ form.caption|as_crispy_field }}
+        </div>
+
+        <div class="text-muted small mb-3">
+            Можно выбрать несколько файлов (Ctrl/Shift-клик). Подпись применится ко всем.
+        </div>
+
+        <button class="btn btn-success" type="submit">Загрузить</button>
+        <a class="btn btn-outline-secondary ms-2" href="{% url 'character-gallery' character.slug %}">Отмена</a>
+    </form>
+{% endblock %}

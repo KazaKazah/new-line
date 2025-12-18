@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Галерея — {{ character.full_name }}{% endblock %}
+
+{% block content %}
+    <h1 class="h4 mb-3">Галерея персонажа — {{ character.full_name }}</h1>
+
+    <!-- Кнопки добавления -->
+    <div class="d-flex justify-content-end gap-2 mb-3">
+        <a class="btn btn-outline-secondary" href="{% url 'character-detail' character.slug %}">
+            ← К странице персонажа
+        </a>
+        <a class="btn btn-outline-secondary" href="{% url 'character-image-add' character.slug %}">
+            Добавить одно фото
+        </a>
+        <a class="btn btn-success" href="{% url 'character-image-add-multiple' character.slug %}">
+            Добавить несколько фото
+        </a>
+        <a class="btn btn-primary" href="{% url 'character-image-add-archive' character.slug %}">
+            Загрузить архив (.zip/.rar)
+        </a>
+    </div>
+    {% if character.gallery.all %}
+        <div class="row g-3" id="galleryGrid">
+            {% for image in character.gallery.all %}
+                <div class="col-6 col-md-3">
+                    <div class="card shadow-sm position-relative">
+                        <!-- Пропорции 3:4 -->
+                        <a href="#"
+                           class="gallery-thumb d-block"
+                           data-index="{{ forloop.counter0 }}"
+                           data-src="{{ image.image.url }}"
+                           data-caption="{{ image.caption|default:character.full_name }}"
+                           data-bs-toggle="modal" data-bs-target="#lightboxModal">
+                            <div class="ratio" style="--bs-aspect-ratio: 133.333%;">
+                                <img class="card-img-top object-fit-cover"
+                                     src="{{ image.image.url }}"
+                                     alt="{{ image.caption|default:character.full_name }}">
+                            </div>
+                        </a>
+
+                        <!-- Кнопка удаления -->
+                        <form method="post"
+                              action="{% url 'character-image-delete' character.slug image.id %}"
+                              class="position-absolute top-0 end-0 m-2"
+                              onsubmit="return confirm('Удалить это фото?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger rounded-circle"
+                                    title="Удалить фото">✕
+                            </button>
+                        </form>
+
+                        {% if image.caption %}
+                            <div class="card-body py-2">
+                                <div class="small text-muted text-center">{{ image.caption }}</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Фотографии пока не добавлены.</p>
+    {% endif %}
+
+    <!-- Лайтбокс-модал -->
+    <div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-dark position-relative">
+                <button type="button" class="btn btn-light position-absolute top-50 start-0 translate-middle-y ms-2"
+                        id="lbPrev" aria-label="Previous">‹
+                </button>
+                <button type="button" class="btn btn-light position-absolute top-50 end-0 translate-middle-y me-2"
+                        id="lbNext" aria-label="Next">›
+                </button>
+                <div class="modal-body p-0 d-flex justify-content-center align-items-center" style="min-height:60vh;">
+                    <img id="lbImg" class="img-fluid" alt="">
+                </div>
+                <div class="text-center text-light small py-2" id="lbCaption"></div>
+                <button type="button" class="btn btn-close btn-close-white position-absolute top-0 end-0 m-3"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .gallery-thumb {
+            cursor: zoom-in;
+        }
+
+        #lbImg {
+            max-height: 85vh;
+            object-fit: contain;
+        }
+    </style>
+
+    <script>
+        (function () {
+            const thumbs = Array.from(document.querySelectorAll('.gallery-thumb'));
+            if (!thumbs.length) return;
+
+            const modalEl = document.getElementById('lightboxModal');
+            const imgEl = document.getElementById('lbImg');
+            const capEl = document.getElementById('lbCaption');
+            const prevBtn = document.getElementById('lbPrev');
+            const nextBtn = document.getElementById('lbNext');
+
+            const items = thumbs.map(t => ({
+                src: t.dataset.src,
+                caption: t.dataset.caption || ''
+            }));
+            let idx = 0;
+
+            function show(i) {
+                if (i < 0) i = items.length - 1;
+                if (i >= items.length) i = 0;
+                idx = i;
+                const it = items[idx];
+                imgEl.src = '';
+                capEl.textContent = it.caption;
+                const pic = new Image();
+                pic.onload = () => {
+                    imgEl.src = it.src;
+                };
+                pic.src = it.src;
+            }
+
+            // клик по миниатюре: подставляем нужную картинку; модалка откроется сама по data-bs-атрибутам
+            thumbs.forEach(t => {
+                t.addEventListener('click', (e) => {
+                    idx = parseInt(t.dataset.index || '0', 10);
+                    show(idx);
+                    // не вызываем preventDefault, чтобы Bootstrap открыл модалку
+                });
+            });
+
+            prevBtn.addEventListener('click', () => show(idx - 1));
+            nextBtn.addEventListener('click', () => show(idx + 1));
+
+            // Навигация стрелками, без использования window.bootstrap
+            function onKey(e) {
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    show(idx - 1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    show(idx + 1);
+                }
+            }
+
+            modalEl.addEventListener('shown.bs.modal', () => document.addEventListener('keydown', onKey));
+            modalEl.addEventListener('hidden.bs.modal', () => document.removeEventListener('keydown', onKey));
+        })();
+    </script>
+{% endblock %}

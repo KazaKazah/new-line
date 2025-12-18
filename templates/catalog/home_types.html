@@ -1,0 +1,14 @@
+
+{# catalog/templates/catalog/home_types.html #}
+{% extends 'base.html' %}
+{% block title %}Выбор типа{% endblock %}
+{% block content %}
+    <h1 class="h4 mb-4">Выберите тип материала</h1>
+    <div class="row g-3">
+        {% for code, label in types %}  {# <<< БЕРЁМ ИЗ КОНТЕКСТА #}
+            <div class="col-6 col-md-3">
+                <a href="{% url 'work-list' code %}" class="btn btn-outline-primary w-100 py-4">{{ label }}</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
