@@ -10,6 +10,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("__reload__/", include("django_browser_reload.urls")),
     #Приложения
+    path("", include("apps.catalog.urls")),
 ]
 
 if settings.DEBUG:

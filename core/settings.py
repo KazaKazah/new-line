@@ -34,6 +34,9 @@ INSTALLED_APPS = [
     "django_summernote",
     "django_browser_reload",
 
+    # приложения
+    "apps.catalog.apps.CatalogConfig",
+
 ]
 
 MIDDLEWARE = [
